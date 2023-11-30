@@ -20,22 +20,9 @@ public enum Role {
                   ADMIN_READ,
                   ADMIN_UPDATE,
                   ADMIN_DELETE,
-                  ADMIN_CREATE,
-                  NORMAL_READ,
-                  NORMAL_UPDATE,
-                  NORMAL_DELETE,
-                  NORMAL_CREATE
-          )
-  ),
-  NORMAL(
-          Set.of(
-                  NORMAL_READ,
-                  NORMAL_UPDATE,
-                  NORMAL_DELETE,
-                  NORMAL_CREATE
+                  ADMIN_CREATE
           )
   )
-
   ;
 
   @Getter

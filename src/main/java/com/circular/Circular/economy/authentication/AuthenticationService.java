@@ -1,5 +1,6 @@
 package com.circular.Circular.economy.authentication;
 
+import com.circular.Circular.economy.entity.Role;
 import com.circular.Circular.economy.jwt.JwtService;
 import com.circular.Circular.economy.request.AuthenticationRequest;
 import com.circular.Circular.economy.request.RegisterRequest;
@@ -27,9 +28,8 @@ public class AuthenticationService {
           .username(userDTO.getUsername())
           .email(userDTO.getEmail())
           .password(passwordEncoder.encode(userDTO.getPassword()))
-          .role(userDTO.getRole())
+            .role(userDTO.getRole() == null || userDTO.getRole().name().isEmpty() ? Role.USER : userDTO.getRole())
           .build();
-
     User savedUser = userRepository.save(user);
     var jwtToken = jwtService.generateToken(savedUser);
 

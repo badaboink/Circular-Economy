@@ -9,20 +9,19 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/auth")
 public class AuthenticationController {
 
   private final AuthenticationService service;
 
+
+  @CrossOrigin(origins = "http://localhost:3030/")
   @PostMapping("/register")
   public ResponseEntity<?> register(
       @RequestBody RegisterRequest request
@@ -34,6 +33,9 @@ public class AuthenticationController {
       return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "Username already exists"));
     }
   }
+
+
+  @CrossOrigin(origins = "http://localhost:3030/")
   @PostMapping("/login")
   public ResponseEntity<?> login(
       @RequestBody AuthenticationRequest request
