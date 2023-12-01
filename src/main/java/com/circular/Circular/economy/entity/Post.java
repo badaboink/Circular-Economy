@@ -13,6 +13,17 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long postId;
 
+    public Post(String title, String description, String image, Float price, String address, Float latitude, Float longitude, ResourceType resourceType) {
+        this.title = title;
+        this.description = description;
+        this.image = image;
+        this.price = price;
+        this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.resourceType = resourceType;
+    }
+
     @Column(nullable=false)
     private String title;
 
