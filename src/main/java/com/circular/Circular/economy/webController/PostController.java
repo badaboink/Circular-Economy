@@ -16,10 +16,26 @@ public class PostController {
         this.postService = postService;
     }
 
+
     @GetMapping //rest endpoint
     public List<Post> getPosts() {
         return postService.getPosts();
     }
+
+    /*
+    @GetMapping("/hello")
+    ResponseEntity<String> hello() {
+        return new ResponseEntity<>("Hello World!", HttpStatus.OK);
+    }
+     */
+    /*
+    //controlleryje return visada turetu buti json formato ir kartu turetu sekti atitinkamas http status kodas pvz:
+      public ResponseEntity<?> sayHello() {
+return ResponseEntity.status(HttpStatus.OK).body(Map.of("success", "Username already exists"));
+    }
+
+
+     */
 
 
     @PostMapping
@@ -27,19 +43,18 @@ public class PostController {
         postService.addNewPost(post);
     }
 
-    @DeleteMapping(path = "{PostId}")
+    @DeleteMapping(path = "{postId}")
     public void deletePost(@PathVariable("postId") Long postId) {
         postService.deletePost(postId);
     }
 
-    @PutMapping(path="{postId}")
+    @PutMapping(path = "{postId}")
     public void updatePost(
             @PathVariable("postId") Long postId,
             @RequestParam(required=false) String title,
-            @RequestParam(required=false) String description,
-            @RequestParam(required=false) float price
+            @RequestParam(required=false) String description
             ) {
-        postService.updatePost(postId,title,description,price);
+        postService.updatePost(postId,title,description);
     }
 
 

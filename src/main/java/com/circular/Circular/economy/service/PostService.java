@@ -42,10 +42,10 @@ public class PostService {
 
     }
     @Transactional //with this annotation entity post goes into managed state
-    public void updatePost(Long postId, String title, String description, float price) {
+    public void updatePost(Long postId, String title, String description) {
             Post post = postRepository.findById(postId)
                     .orElseThrow( ()->new IllegalStateException("Post with id " + postId +" does not exist" ));
-
+            System.out.println("updatePost metode postId" + postId);
             if (title != null &&
                 title.length()>0 && !Objects.equals(post.getTitle(),title)) {
                 post.setTitle(title);
@@ -53,10 +53,10 @@ public class PostService {
             if (description != null &&
                 description.length()>0 && !Objects.equals(post.getDescription(),description)) {
                 post.setDescription(description);
-            }
+            }/*
             if (price >= 0 && !Objects.equals(post.getPrice(),price)) {
                  post.setPrice(price);
-            } else throw new NumberFormatException ("Price cannot be lover than zero");
+            } else throw new NumberFormatException ("Price cannot be lower than zero"); */
 
     }
 }

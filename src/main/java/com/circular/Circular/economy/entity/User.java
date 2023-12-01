@@ -13,6 +13,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
+    public User(String username, String email, String password, String phoneNumber) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+    }
+
     @Column(nullable=false, unique=true)
     private String username;
 
