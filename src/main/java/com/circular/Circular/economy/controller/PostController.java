@@ -1,4 +1,4 @@
-package com.circular.Circular.economy.webController;
+package com.circular.Circular.economy.controller;
 
 import com.circular.Circular.economy.entity.Post;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,27 +16,10 @@ public class PostController {
         this.postService = postService;
     }
 
-
     @GetMapping //rest endpoint
     public List<Post> getPosts() {
         return postService.getPosts();
     }
-
-    /*
-    @GetMapping("/hello")
-    ResponseEntity<String> hello() {
-        return new ResponseEntity<>("Hello World!", HttpStatus.OK);
-    }
-     */
-    /*
-    //controlleryje return visada turetu buti json formato ir kartu turetu sekti atitinkamas http status kodas pvz:
-      public ResponseEntity<?> sayHello() {
-return ResponseEntity.status(HttpStatus.OK).body(Map.of("success", "Username already exists"));
-    }
-
-
-     */
-
 
     @PostMapping
     public void createNewPost(@RequestBody Post post) { //we take a request body and map into a post
@@ -56,6 +39,5 @@ return ResponseEntity.status(HttpStatus.OK).body(Map.of("success", "Username alr
             ) {
         postService.updatePost(postId,title,description);
     }
-
-
+    
 }
