@@ -1,5 +1,6 @@
 package com.circular.Circular.economy.service;
 
+import com.circular.Circular.economy.dto.geocoding.Coordinates;
 import com.circular.Circular.economy.entity.Post;
 import com.circular.Circular.economy.entity.User;
 import com.circular.Circular.economy.jwt.JwtService;
@@ -39,13 +40,12 @@ public class PostService {
         User user = userService.getUserByUsername(username);
         post.setUser(user);
 
-//        Coordinates coordinates = geocodingService.getCoordinatesFromAddress(post.getAddress());
-//
-//        if (coordinates != null) {
-//            post.setLatitude(coordinates.getLatitude());
-//            post.setLongitude(coordinates.getLongitude());
-//        }
+        Coordinates coordinates = geocodingService.getCoordinatesFromAddress(post.getAddress());
 
+        if (coordinates != null) {
+            post.setLatitude(coordinates.getLatitude());
+            post.setLongitude(coordinates.getLongitude());
+        }
 
         return postRepository.save(post);
     }
@@ -90,7 +90,6 @@ public class PostService {
             } else throw new NumberFormatException ("Price cannot be lower than zero"); */
         return changes;
     }
-
 
 
 }

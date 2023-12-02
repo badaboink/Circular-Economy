@@ -39,7 +39,7 @@ public class SecurityConfiguration {
                 )
                 .authorizeHttpRequests(req ->
                         req
-                                .requestMatchers(HttpMethod.GET, "/api/v1/post").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/post/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v1/resourceTypes/**").permitAll()
                                 .requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
