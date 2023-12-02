@@ -1,7 +1,6 @@
 package com.circular.Circular.economy.entity;
 
 public enum ResourceType {
-    TEST("test"), //enum constants(objects)
     FINISHING("Finishing materials"),
     BULK("Bulk building materials"),
     DOORS("Doors"),
@@ -29,6 +28,15 @@ public enum ResourceType {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public static ResourceType findByDescription(String description) {
+        for (ResourceType type : values()) {
+            if (type.getDescription().equalsIgnoreCase(description)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("No ResourceType found with description: " + description);
     }
 }
 
