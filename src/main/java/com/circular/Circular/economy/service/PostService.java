@@ -1,7 +1,5 @@
 package com.circular.Circular.economy.service;
 
-
-import com.circular.Circular.economy.dto.geocoding.Coordinates;
 import com.circular.Circular.economy.entity.Post;
 import com.circular.Circular.economy.entity.User;
 import com.circular.Circular.economy.jwt.JwtService;
@@ -12,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 //@Component //tells that this class is Spring bean
 @Service //the same as @Component annotation
@@ -55,31 +54,43 @@ public class PostService {
         return postRepository.findAll();
     }
 
-    public void deletePost(Long postId) {
-        boolean exists = postRepository.existsById(postId);
-        if (!exists) {
-            throw new IllegalStateException(
-                    "post with id " + postId + " does not exists");
+    public Optional<Post> getPostById(Long postId) {
+        return postRepository.findById(postId);
+    }
+
+    public boolean deletePost(Long postId) {
+        if (!postRepository.existsById(postId)) {
+            /*throw new IllegalStateException(
+                    "post with id " + postId + " does not exist");*/
+            return false;
+
         }
         postRepository.deleteById(postId);
-
+        return true;
     }
+
     @Transactional //with this annotation entity post goes into managed state
-    public void updatePost(Long postId, String title, String description) {
+    public boolean updatePost(Long postId, String title, String description) {
+            boolean changes = false;
             Post post = postRepository.findById(postId)
                     .orElseThrow( ()->new IllegalStateException("Post with id " + postId +" does not exist" ));
-            System.out.println("updatePost metode postId" + postId);
+            System.out.println("updatePost method postId" + postId);
             if (title != null &&
                 title.length()>0 && !Objects.equals(post.getTitle(),title)) {
                 post.setTitle(title);
+                changes=true;
             }
             if (description != null &&
                 description.length()>0 && !Objects.equals(post.getDescription(),description)) {
                 post.setDescription(description);
+                changes=true;
             }/*
             if (price >= 0 && !Objects.equals(post.getPrice(),price)) {
                  post.setPrice(price);
             } else throw new NumberFormatException ("Price cannot be lower than zero"); */
-
+        return changes;
     }
+
+
+
 }
