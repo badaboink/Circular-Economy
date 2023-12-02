@@ -1,16 +1,25 @@
 package com.circular.Circular.economy.controller;
 
 import com.circular.Circular.economy.entity.Post;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import com.circular.Circular.economy.entity.ResourceType;
+import com.circular.Circular.economy.entity.User;
+import com.circular.Circular.economy.jwt.JwtService;
 import com.circular.Circular.economy.service.PostService;
+import com.circular.Circular.economy.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping(path="api/v1/post")
 public class PostController {
     private final PostService postService;
+
     @Autowired //tells that variable postService has to be instantiated an injected into this constructor
     public PostController(PostService postService) {
         this.postService = postService;
@@ -22,8 +31,9 @@ public class PostController {
     }
 
     @PostMapping
-    public void createNewPost(@RequestBody Post post) { //we take a request body and map into a post
-        postService.addNewPost(post);
+    public ResponseEntity<?> createNewPost(@RequestBody Post post, @RequestHeader(name = "Authorization") String token) {
+        Post savedPost = postService.addNewPost(post, token);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("post", savedPost));
     }
 
     @DeleteMapping(path = "{postId}")

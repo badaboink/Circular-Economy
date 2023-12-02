@@ -4,6 +4,7 @@ import com.circular.Circular.economy.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -37,7 +38,10 @@ public class SecurityConfiguration {
                         .configurationSource(corsConfigurationSource())
                 )
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers(WHITE_LIST_URL)
+                        req
+                                .requestMatchers(HttpMethod.GET, "/api/v1/post").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/resourceTypes/**").permitAll()
+                                .requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()
