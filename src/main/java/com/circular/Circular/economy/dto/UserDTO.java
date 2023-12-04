@@ -1,8 +1,6 @@
 package com.circular.Circular.economy.dto;
 
 import com.circular.Circular.economy.entity.Role;
-import com.circular.Circular.economy.request.AuthenticationRequest;
-import com.circular.Circular.economy.request.RegisterRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

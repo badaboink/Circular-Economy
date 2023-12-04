@@ -2,8 +2,8 @@ package com.circular.Circular.economy.authentication;
 
 import com.circular.Circular.economy.entity.Role;
 import com.circular.Circular.economy.jwt.JwtService;
-import com.circular.Circular.economy.request.AuthenticationRequest;
-import com.circular.Circular.economy.request.RegisterRequest;
+import com.circular.Circular.economy.dto.AuthenticationRequest;
+import com.circular.Circular.economy.dto.RegisterRequest;
 import com.circular.Circular.economy.entity.User;
 import com.circular.Circular.economy.dto.UserDTO;
 import com.circular.Circular.economy.repository.UserRepository;
