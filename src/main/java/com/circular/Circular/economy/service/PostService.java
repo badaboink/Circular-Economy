@@ -1,9 +1,9 @@
 package com.circular.Circular.economy.service;
 
-
+import com.circular.Circular.economy.dto.geocoding.Coordinates;
 import com.circular.Circular.economy.entity.Post;
-import com.circular.Circular.economy.entity.ResourceType;
 import com.circular.Circular.economy.entity.User;
+import com.circular.Circular.economy.jwt.JwtService;
 import com.circular.Circular.economy.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,12 +20,34 @@ public class PostService {
     private final PostRepository postRepository;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private GeocodingService geocodingService;
+
+    @Autowired
     public PostService(PostRepository postRepository) {
         this.postRepository = postRepository;
     }
 
-    public void addNewPost(Post post) {
-    postRepository.save(post);
+    public Post addNewPost(Post post, String token) {
+        String[] authorizationParts = token.split(" ");
+        String tokenExtracted = authorizationParts.length > 1 ? authorizationParts[1] : null;
+        String username = jwtService.extractUsername(tokenExtracted);
+        User user = userService.getUserByUsername(username);
+        post.setUser(user);
+
+        Coordinates coordinates = geocodingService.getCoordinatesFromAddress(post.getAddress());
+
+        if (coordinates != null) {
+            post.setLatitude(coordinates.getLatitude());
+            post.setLongitude(coordinates.getLongitude());
+        }
+
+        return postRepository.save(post);
     }
 
     public List<Post> getPosts() {
@@ -68,7 +90,6 @@ public class PostService {
             } else throw new NumberFormatException ("Price cannot be lower than zero"); */
         return changes;
     }
-
 
 
 }
