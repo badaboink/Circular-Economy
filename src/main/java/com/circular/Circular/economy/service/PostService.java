@@ -44,7 +44,7 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    private String ACCESS_TOKEN ="sl.BrH3yn1ZkmLkrYKVrD1f-EepV6yNax7hHNvAwwczrfuFUI5mdvIJhcHh7gq_R2BoUHX4j6meD1fkhVHbC1OapMoNIKHs1bR-kcsqhxRoFiJLJuElki1FDZ_lXkrxJ53RB0F7cAy5dCMgAz4NCHlQLcU";
+    private String ACCESS_TOKEN ="api_access_token";
     public Post addNewPost(PostDTO postDTO, String token) throws IOException, DbxException {
         DbxRequestConfig config = DbxRequestConfig.newBuilder("salvage").build();
         DbxClientV2 client = new DbxClientV2(config, ACCESS_TOKEN);
