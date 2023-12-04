@@ -1,5 +1,7 @@
 package com.circular.Circular.economy.controller;
 
+import com.circular.Circular.economy.dto.PostDTO;
+import com.circular.Circular.economy.dto.PostWithLinkDTO;
 import com.circular.Circular.economy.entity.Post;
 import com.circular.Circular.economy.entity.ResourceType;
 import com.circular.Circular.economy.service.PostService;
@@ -7,13 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -55,11 +55,11 @@ public class PostController {
     @GetMapping(path = "/{name}") //posts filtered by ResourceType
     public ResponseEntity<?> findByResourceType(@PathVariable String name){
         try {
-            List<Post> allPosts = postService.getPosts();
+            List<PostWithLinkDTO> allPosts = postService.getPosts();
 
             if (allPosts.isEmpty()) return new ResponseEntity<>(HttpStatus.NOT_FOUND); //404
-            List<Post> filteredList = allPosts.stream().filter(post -> post.getResourceType().name().equals(name))
-                    .collect(Collectors.toList());
+            List<PostWithLinkDTO> filteredList = allPosts.stream().filter(post -> post.getResourceTypeName().equals(name))
+                    .toList();
             Map<String, Object> response = new HashMap<>();
             int index = Arrays.asList(ResourceType.values()).indexOf(ResourceType.valueOf(name));
             return ResponseEntity.ok().body(Map.of("data", filteredList, "index", index));
@@ -67,16 +67,29 @@ public class PostController {
         catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); //500
         }
-
     }
+
+//    @PostMapping
+//    public ResponseEntity<?> createNewPost(
+//            @RequestBody Post post,
+//            @RequestHeader(name = "Authorization") String token
+//    ) {
+//        try {
+//            Post savedPost = postService.addNewPost(post, token);
+//            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("post", savedPost));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(Map.of("error", "Error creating a new post"));
+//        }
+//    }
 
     @PostMapping
     public ResponseEntity<?> createNewPost(
-            @RequestBody Post post,
+            @ModelAttribute PostDTO postDTO,
             @RequestHeader(name = "Authorization") String token
     ) {
         try {
-            Post savedPost = postService.addNewPost(post, token);
+            Post savedPost = postService.addNewPost(postDTO, token);
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("post", savedPost));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

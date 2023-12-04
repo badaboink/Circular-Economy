@@ -1,5 +1,6 @@
-package com.circular.Circular.economy.request;
+package com.circular.Circular.economy.dto;
 
+import com.circular.Circular.economy.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,8 +10,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationRequest {
+public class RegisterRequest {
 
   private String username;
+  private String email;
   private String password;
+  private Role role;
 }
