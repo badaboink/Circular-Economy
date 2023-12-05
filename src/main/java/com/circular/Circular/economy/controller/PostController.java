@@ -1,7 +1,6 @@
 package com.circular.Circular.economy.controller;
 
 import com.circular.Circular.economy.dto.PostDTO;
-import com.circular.Circular.economy.dto.PostWithLinkDTO;
 import com.circular.Circular.economy.entity.Post;
 import com.circular.Circular.economy.entity.ResourceType;
 import com.circular.Circular.economy.service.PostService;
@@ -10,10 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -39,13 +35,29 @@ public class PostController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); //500
         }
     }
-  @GetMapping(path = "/id={postId}") //post by id
+
+    @GetMapping("/personal")
+    public ResponseEntity<?> getPersonalPosts(@RequestHeader(name = "Authorization") String token) {
+        try {
+            List<PostDTO> userPosts = postService.getPersonalPosts(token);
+
+            if (userPosts.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            return ResponseEntity.ok().body(Map.of("data", userPosts));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping(path = "/id={postId}") //post by id
     public ResponseEntity<?> getPost(@PathVariable("postId") Long postId) {
         try{
-            if(postService.getPostById(postId).isEmpty()){
+            Optional<PostDTO> post = postService.getPostDTOById(postId);
+            if(post.isEmpty()){
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT); //204
             }
-            return new ResponseEntity<>(postService.getPostById(postId),HttpStatus.OK); //200
+            return new ResponseEntity<>(post,HttpStatus.OK); //200
         }
         catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); //500
@@ -55,10 +67,10 @@ public class PostController {
     @GetMapping(path = "/{name}") //posts filtered by ResourceType
     public ResponseEntity<?> findByResourceType(@PathVariable String name){
         try {
-            List<PostWithLinkDTO> allPosts = postService.getPosts();
+            List<PostDTO> allPosts = postService.getPosts();
 
             if (allPosts.isEmpty()) return new ResponseEntity<>(HttpStatus.NOT_FOUND); //404
-            List<PostWithLinkDTO> filteredList = allPosts.stream().filter(post -> post.getResourceTypeName().equals(name))
+            List<PostDTO> filteredList = allPosts.stream().filter(post -> post.getResourceTypeName().equals(name))
                     .toList();
             Map<String, Object> response = new HashMap<>();
             int index = Arrays.asList(ResourceType.values()).indexOf(ResourceType.valueOf(name));
@@ -68,20 +80,6 @@ public class PostController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); //500
         }
     }
-
-//    @PostMapping
-//    public ResponseEntity<?> createNewPost(
-//            @RequestBody Post post,
-//            @RequestHeader(name = "Authorization") String token
-//    ) {
-//        try {
-//            Post savedPost = postService.addNewPost(post, token);
-//            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("post", savedPost));
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body(Map.of("error", "Error creating a new post"));
-//        }
-//    }
 
     @PostMapping
     public ResponseEntity<?> createNewPost(
@@ -99,52 +97,43 @@ public class PostController {
 
 
     @DeleteMapping(path = "{postId}")
-    public ResponseEntity<String> deletePost(@PathVariable("postId") Long postId) { //ar ResponseEntity<Long>
-        var isRemoved = postService.deletePost(postId);
+    public ResponseEntity<?> deletePost(@PathVariable("postId") Long postId,
+                                        @RequestHeader(name = "Authorization") String token) {
+        var isRemoved = postService.deletePost(postId, token);
         if (!isRemoved) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); //404
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Error deleting post"));
         }
-        return new ResponseEntity<>("Post " +postId +" is deleted",HttpStatus.NO_CONTENT); //204
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT); //204
     }
 
+    @DeleteMapping("/delete-multiple")
+    public ResponseEntity<String> deletePosts(@RequestBody List<Long> postIds,
+                                              @RequestHeader("Authorization") String token) {
 
+        boolean allDeleted = postService.deletePosts(postIds, token);
+
+        if (allDeleted) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized access or some posts not found");
+        }
+    }
     @PutMapping(path = "{postId}")
-    public ResponseEntity<?> updatePost(
-            @PathVariable("postId") Long postId,
-            @RequestParam(required=false) String title,
-            @RequestParam(required=false) String description
-            ) {
-                try {
-                    if(postService.updatePost(postId,title,description))
-                    return new ResponseEntity<>(postService.getPostById(postId),HttpStatus.OK); //200
-                    else return new ResponseEntity<>(HttpStatus.BAD_REQUEST); //400
-                }
-                catch (Exception e){
-                    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); //500
-                }
-
-    }
-
-    @PatchMapping(path = "{postId}")  //turi buti 200
     public ResponseEntity<?> updatePostPartial(
-            @PathVariable("postId") Long postId,
-            @RequestParam(required=false) String title,
-            @RequestParam(required=false) String description
+            @ModelAttribute PostDTO postDTO
     ) {
         try {
-            if(postService.updatePost(postId,title,description))
-                return new ResponseEntity<>(postService.getPostById(postId),HttpStatus.OK); //200
-            else return new ResponseEntity<>(HttpStatus.BAD_REQUEST); //400
+            Optional<Post> post = Optional.ofNullable(postService.updatePost(postDTO));
+            if(post.isEmpty()){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            else{
+                return new ResponseEntity<>(post,HttpStatus.OK); //200
+            }
         }
         catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); //500
         }
 
     }
-
-
-
-
-
-
 }
