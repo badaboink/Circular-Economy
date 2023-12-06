@@ -2,8 +2,8 @@ package com.circular.Circular.economy.controller;
 
 import com.circular.Circular.economy.authentication.AuthenticationResponse;
 import com.circular.Circular.economy.authentication.AuthenticationService;
-import com.circular.Circular.economy.request.AuthenticationRequest;
-import com.circular.Circular.economy.request.RegisterRequest;
+import com.circular.Circular.economy.dto.AuthenticationRequest;
+import com.circular.Circular.economy.dto.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
