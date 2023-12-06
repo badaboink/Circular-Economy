@@ -1,101 +1,72 @@
 package com.circular.Circular.economy.controller;
 
+import com.circular.Circular.economy.dto.UserDTO;
 import com.circular.Circular.economy.entity.Post;
 import com.circular.Circular.economy.entity.User;
 import com.circular.Circular.economy.repository.UserRepository;
+import com.circular.Circular.economy.service.PostService;
+import com.circular.Circular.economy.service.UserService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1/user")
 public class UserController {
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
-    @GetMapping("/getAllUsers")
-    public ResponseEntity<List<User>> getAllUsers(){
-        try{
-            List<User> userList = new LinkedList<>();
-            userList.addAll(userRepository.findAll());
-            if(userList.isEmpty()){
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @Autowired
+    private PostService postService;
 
-    }
-    @GetMapping("/getUserByID/{id}")
-    public ResponseEntity<User> getUserByID(@PathVariable Long id){
-        Optional<User> userObj = userRepository.findById(id);
-        if (userObj.isPresent()) {
-            return new ResponseEntity<>(userObj.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-    @PostMapping("/addUser")
-    public ResponseEntity<User> addUser(@RequestBody User user){
+    @GetMapping()
+    public ResponseEntity<?> getUser(@RequestParam(value = "username") String username) {
         try {
-            User userObj = userRepository.save(user);
-            return new ResponseEntity<>(HttpStatus.OK);
+            UserDTO user = userService.getUser(username);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>("An error occurred while processing the request", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
     }
-    @DeleteMapping("/deleteByID/{id}")
-    public ResponseEntity<HttpStatus> deleteByID(@PathVariable Long id){
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(
+            @PathVariable Long id,
+            @RequestBody User updatedUser) {
         try {
-            userRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        catch(Exception e){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-    @PostMapping("/updateUserByID/{id}")
-    public ResponseEntity<User> updateUserByID(@PathVariable Long id, @RequestBody User user){
-        try{
-            Optional<User> userData = userRepository.findById(id);
-            if (userData.isPresent()) {
-                User updatedPostData = getUser(user, userData);
-
-                User userObj = userRepository.save(updatedPostData);
-                return new ResponseEntity<>(userObj, HttpStatus.CREATED);
-            }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            UserDTO updatedUserDTO = userService.updateUser(id, updatedUser);
+            return ResponseEntity.ok(updatedUserDTO);
+        } catch (DataIntegrityViolationException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>("An error occurred while processing the request", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    private static User getUser(User user, Optional<User> userData) {
-        User updatedUserData = userData.get();
-        updatedUserData.setEmail(user.getEmail());
-        updatedUserData.setPassword(user.getPassword());
-        updatedUserData.setPhoneNumber(user.getPhoneNumber());
-        updatedUserData.setUsername(user.getUsername());
-        return updatedUserData;
-    }
-    @DeleteMapping("/deleteAllUsers")
-    public ResponseEntity<HttpStatus> deleteAllUsers(){
-        try{
-            userRepository.deleteAll();
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(
+            @PathVariable Long id, @RequestHeader(name = "Authorization") String token) {
+        try {
+            List<Long> postIds = postService.getPostIdsByUserId(id);
+            postService.deletePosts(postIds, token);
+            userService.deleteUser(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>("An error occurred while processing the request", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
