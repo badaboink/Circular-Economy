@@ -18,44 +18,59 @@ import java.io.InputStream;
 @Service
 public class DropboxService {
 
-    private String ACCESS_TOKEN = "ACCESS_TOKEN";
-    private String REFRESH_TOKEN = "REFRESH_TOKEN";
-    private String APP_KEY = "APP_KEY";
-    private String APP_SECRET = "APP_SECRET";
+
+    private String ACCESS_TOKEN;
+    private String REFRESH_TOKEN = "LHaY4LrV6Q4AAAAAAAAAAZudtP-Ie_HAwNuSoVi_s4Bpf0PcqwmGAILf8G60rr92";
+    private String APP_KEY = "g2isw62nk0lqqse";
+    private String APP_SECRET = "36tib5ydn9bifya";
     private final DbxClientV2 dropboxClient;
     private final DbxRequestConfig config;
 
+
+    public void setACCESS_TOKEN(String ACCESS_TOKEN) {
+        this.ACCESS_TOKEN = ACCESS_TOKEN;
+    }
+
     public DropboxService() {
         this.config = DbxRequestConfig.newBuilder("salvage").build();
+        refreshAccessToken();
         this.dropboxClient = new DbxClientV2(config, ACCESS_TOKEN);
     }
 
     public void refreshAccessToken() {
         OkHttpClient httpClient = new OkHttpClient();
 
-        RequestBody requestBody = new FormBody.Builder()
-                .add("grant_type", "refresh_token")
-                .add("refresh_token", REFRESH_TOKEN)
-                .build();
+        try {
+            RequestBody requestBody = new FormBody.Builder()
+                    .add("grant_type", "refresh_token")
+                    .add("refresh_token", REFRESH_TOKEN)
+                    .build();
+            String credentials = Credentials.basic(APP_KEY, APP_SECRET);
 
-        Request request = new Request.Builder()
-                .url("https://api.dropbox.com/oauth2/token")
-                .post(requestBody)
-                .addHeader("Authorization", Credentials.basic(APP_KEY, APP_SECRET))
-                .build();
+            Request request = new Request.Builder()
+                    .url("https://api.dropbox.com/oauth2/token")
+                    .post(requestBody)
+                    .addHeader("Authorization", credentials)
+                    .build();
 
-        try (Response response = httpClient.newCall(request).execute()) {
-            if (response.isSuccessful()) {
-                String responseBody = response.body().string();
-                ObjectMapper objectMapper = new ObjectMapper();
-                JsonNode jsonNode = objectMapper.readTree(responseBody);
+            try (Response response = httpClient.newCall(request).execute()) {
+                ResponseBody body = response.body();
+                if (response.isSuccessful()) {
+                    String responseBody = body.string();
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JsonNode jsonNode = objectMapper.readTree(responseBody);
 
-                // Update class variables with the new access token and refresh token
-                ACCESS_TOKEN = jsonNode.get("access_token").asText();
-                REFRESH_TOKEN = jsonNode.get("refresh_token").asText();
+                    JsonNode accessTokenNode = jsonNode.get("access_token");
+                    setACCESS_TOKEN(accessTokenNode.textValue());
+                }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
+            // Handle IO exceptions
             e.printStackTrace();
+        } finally {
+            // Close the client to release resources
+            httpClient.dispatcher().executorService().shutdown();
+            httpClient.connectionPool().evictAll();
         }
     }
     public String uploadFile(InputStream fileInputStream, String dropboxFilePath) throws IOException, DbxException {
