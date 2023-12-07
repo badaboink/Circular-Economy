@@ -2,16 +2,18 @@ package com.circular.Circular.economy.service;
 
 import com.circular.Circular.economy.dto.UserDTO;
 import com.circular.Circular.economy.entity.User;
+import com.circular.Circular.economy.jwt.JwtService;
 import com.circular.Circular.economy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -19,9 +21,15 @@ public class UserService {
 
     @Autowired
     private final UserRepository userRepository;
+    @Autowired
+    private final JwtService jwtService;
+    @Autowired
+    private final AuthenticationManager authenticationManager;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, JwtService jwtService, AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
     }
 
     public User getUserByUsername(String username) {
@@ -42,16 +50,33 @@ public class UserService {
         try {
             User existingUser = userRepository.findById(id)
                     .orElseThrow(() -> new NoSuchElementException("User not found"));
-
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            existingUser.getUsername(),
+                            updatedUser.getPassword()
+                    )
+            );
+            boolean usernameUpdated = !Objects.equals(existingUser.getUsername(), updatedUser.getUsername());
+            if(usernameUpdated)
+            {
+                existingUser.setUsername(updatedUser.getUsername());
+            }
             existingUser.setEmail(updatedUser.getEmail());
             existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
 
             User savedUser = userRepository.save(existingUser);
 
-            return new UserDTO(savedUser.getUserId(), savedUser.getUsername(), savedUser.getEmail(), savedUser.getPhoneNumber());
-        } catch (DataIntegrityViolationException | NoSuchElementException e) {
+            String jwtToken = null;
+
+            if (usernameUpdated) {
+                jwtToken = jwtService.generateToken(savedUser);
+            }
+
+            return new UserDTO(savedUser.getUserId(), savedUser.getUsername(), savedUser.getEmail(), savedUser.getPhoneNumber(), jwtToken);
+        } catch (DataIntegrityViolationException | NoSuchElementException | BadCredentialsException e) {
             throw e;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new RuntimeException("An error occurred while processing the request", e);
         }
     }

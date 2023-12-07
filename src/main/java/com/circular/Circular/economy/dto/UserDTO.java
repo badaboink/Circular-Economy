@@ -17,6 +17,7 @@ public class UserDTO {
     private String password;
     private String phoneNumber;
     private Role role;
+    private String accessToken;
 
     public static UserDTO fromRegisterRequest(RegisterRequest request) {
         UserDTO userDTO = new UserDTO();
@@ -39,5 +40,12 @@ public class UserDTO {
         this.username = username;
         this.email = email;
         this.phoneNumber = phoneNumber;
+    }
+    public UserDTO(long userId, String username, String email, String phoneNumber, String AccessToken) {
+        this.userId = userId;
+        this.username = username;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.accessToken = AccessToken;
     }
 }
