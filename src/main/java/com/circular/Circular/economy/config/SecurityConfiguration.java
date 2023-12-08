@@ -26,7 +26,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableMethodSecurity
 public class SecurityConfiguration {
 
-    private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**", "/**"};
+    private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**", "/ws/**"};
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
@@ -59,6 +59,7 @@ public class SecurityConfiguration {
         configuration.setAllowedMethods(Arrays.asList("GET","POST","DELETE","PATCH","PUT","OPTION"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Access-Control-Allow-Headers",
                 "Access-Control-Allow-Credentials", "X-Requested-With, content-type"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
