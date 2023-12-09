@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 //@Component //tells that this class is Spring bean
 @Service //the same as @Component annotation
@@ -127,7 +128,6 @@ public class PostService {
             }
             postsWithLinkDTO.add(postWithLinkDTO);
         }
-
         return postsWithLinkDTO;
     }
     public Optional<PostDTO> getPostDTOById(Long postId) {
@@ -225,5 +225,10 @@ public class PostService {
         }
         return null;
     }
-
+    public List<Long> getPostIdsByUserId(Long userId) {
+        List<Post> userPosts = postRepository.findByUserUserId(userId);
+        return userPosts.stream()
+                .map(Post::getPostId)
+                .collect(Collectors.toList());
+    }
 }
