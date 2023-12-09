@@ -199,7 +199,10 @@ public class PostService {
 
             if (postDTO.getImageFile() != null) {
                 try {
-                    dropboxService.deleteFile(post.getImage());
+                    if(post.getImage() != null)
+                    {
+                        dropboxService.deleteFile(post.getImage());
+                    }
                     InputStream fileInputStream = postDTO.getImageFile().getInputStream();
                     String dropboxFilePath = "/salvage/" + postDTO.getImageFile().getOriginalFilename();
                     String dropboxImageUrl = dropboxService.uploadFile(fileInputStream, dropboxFilePath);
