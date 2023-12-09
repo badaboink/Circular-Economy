@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedList;
@@ -46,6 +47,10 @@ public class UserController {
         try {
             UserDTO updatedUserDTO = userService.updateUser(id, updatedUser);
             return ResponseEntity.ok(updatedUserDTO);
+        }catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }catch (BadCredentialsException e) {
+            return new ResponseEntity<>("Wrong password", HttpStatus.CONFLICT);
         } catch (DataIntegrityViolationException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         } catch (NoSuchElementException e) {

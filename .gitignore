@@ -31,3 +31,13 @@ build/
 
 ### VS Code ###
 .vscode/
+
+src/main/java/com/circular/Circular/economy/config/SocketBrokerConfiguration.java
+src/main/java/com/circular/Circular/economy/controller/SocketController.java
+src/main/java/com/circular/Circular/economy/entity/Message.java
+src/main/java/com/circular/Circular/economy/entity/OutputMessage.java
+src/main/java/com/circular/Circular/economy/Constants.java
+
+
+
+
