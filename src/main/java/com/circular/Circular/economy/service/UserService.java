@@ -9,8 +9,14 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -61,11 +67,6 @@ public class UserService {
             {
                 existingUser.setUsername(updatedUser.getUsername());
             }
-            existingUser.setEmail(updatedUser.getEmail());
-            existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
-
-            User savedUser = userRepository.save(existingUser);
-
             String jwtToken = null;
 
             if (usernameUpdated) {
