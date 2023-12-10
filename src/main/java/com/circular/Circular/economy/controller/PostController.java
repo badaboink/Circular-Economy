@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3030")
 @RestController
 @RequestMapping(path="api/v1/post")
 public class PostController {
@@ -120,9 +120,11 @@ public class PostController {
     }
     @PutMapping(path = "{postId}")
     public ResponseEntity<?> updatePostPartial(
+            @PathVariable Long postId,
             @ModelAttribute PostDTO postDTO
     ) {
         try {
+            postDTO.setPostId(postId);
             Optional<Post> post = Optional.ofNullable(postService.updatePost(postDTO));
             if(post.isEmpty()){
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -132,6 +134,7 @@ public class PostController {
             }
         }
         catch (Exception e){
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); //500
         }
 

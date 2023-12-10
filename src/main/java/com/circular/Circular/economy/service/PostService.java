@@ -91,7 +91,7 @@ public class PostService {
 
             PostDTO postWithLinkDTO = new PostDTO(post.getPostId(), post.getTitle(), post.getDescription(), post.getResourceType().name(),
                     post.getAddress(), post.getPrice(), post.getUser().getUsername(), post.getLatitude(), post.getLongitude(),
-                    post.getImage());
+                    post.getImage(), post.getUser().getPhoneNumber(), post.getUser().getEmail());
             try {
                 if (post.getImage() != null) {
                     String dropboxTemporaryLink = dropboxService.getTemporaryLink(originalFileName);
@@ -199,7 +199,10 @@ public class PostService {
 
             if (postDTO.getImageFile() != null) {
                 try {
-                    dropboxService.deleteFile(post.getImage());
+                    if(post.getImage() != null)
+                    {
+                        dropboxService.deleteFile(post.getImage());
+                    }
                     InputStream fileInputStream = postDTO.getImageFile().getInputStream();
                     String dropboxFilePath = "/salvage/" + postDTO.getImageFile().getOriginalFilename();
                     String dropboxImageUrl = dropboxService.uploadFile(fileInputStream, dropboxFilePath);

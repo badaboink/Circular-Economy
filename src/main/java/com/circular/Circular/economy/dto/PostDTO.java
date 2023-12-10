@@ -26,6 +26,8 @@ public class PostDTO implements Serializable {
     private String imageName;
     private String dropboxTemporaryLink;
     private String username;
+    private String phoneNumber;
+    private String email;
 
     public PostDTO(String postTitle, String postDescription, String address, Float price, String resourceTypeName) {
         this.postTitle = postTitle;
@@ -52,7 +54,8 @@ public class PostDTO implements Serializable {
     }
 
     public PostDTO(Long postId, String title, String description, String resourceTypeName,
-                   String address, Float price, String username, Float latitude, Float longitude, String imageName) {
+                   String address, Float price, String username, Float latitude, Float longitude, String imageName, String phoneNumber,
+                   String email) {
         this.postId = postId;
         this.postTitle = title;
         this.postDescription = description;
@@ -63,6 +66,8 @@ public class PostDTO implements Serializable {
         this.latitude = latitude;
         this.longitude = longitude;
         this.imageName = imageName;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
     }
 
     public PostDTO(Long postId, String title, String description, String resourceTypeName, String resourceTypeDescription, Float price,
