@@ -67,6 +67,9 @@ public class UserService {
             {
                 existingUser.setUsername(updatedUser.getUsername());
             }
+            existingUser.setEmail(updatedUser.getEmail());
+            existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
+            User savedUser = userRepository.save(existingUser);
             String jwtToken = null;
 
             if (usernameUpdated) {
